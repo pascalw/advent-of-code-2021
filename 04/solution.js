@@ -82,7 +82,28 @@ class Game {
       }
     }
   }
+
+  boardToWinLast(numbers) {
+    var wonBoards = 0;
+
+    for(const number of numbers) {
+      for(const board of this.boards) {
+        if(board.hasBingo()) continue;
+
+        board.try(number);
+
+        if(board.hasBingo()) {
+          wonBoards++;
+
+          if(wonBoards == this.boards.length) {
+            return [board, board.score(number)];
+          }
+        }
+      }
+    }
+  }
 }
+module.exports.Game = Game;
 
 if (require.main === module) {
   const input = fs.readFileSync('input').toString();
@@ -105,6 +126,7 @@ if (require.main === module) {
   }, []).map(board => new Board(board));
 
   const game = new Game(boards);
-  const [winningBoard, score] = game.play(numbers);
+  // const [board, score] = game.play(numbers);
+  const [board, score] = game.boardToWinLast(numbers);
   console.log(score);
 }

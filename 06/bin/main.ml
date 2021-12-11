@@ -23,9 +23,9 @@ module Simulation = struct
     let next_fishes = List.map t.fishes ~f: Fish.age in
     { fishes = Caml.List.flatten next_fishes }
 
-  let rec tick t n = match n with
+  let rec tick t ~n = match n with
   | 0 -> t
-  | _ -> tick (tick' t) (n - 1)
+  | _ -> tick (tick' t) ~n:(n - 1)
 end
 
 module Input = struct
@@ -33,13 +33,15 @@ module Input = struct
   let split = String.split ~on: ','
 
   let parse file_contents =
-    let values = Caml.List.flatten (List.map file_contents ~f:split) in
-    List.map values ~f:Fish.from_string
+    List.map file_contents ~f: split
+    |> Caml.List.flatten
+    |> List.map ~f: Fish.from_string
 end
 
 let () =
-  let input = Input.read "input" in
-  let fishes = Input.parse input in
-  let simulation = Simulation.make fishes in
-  let simulation = Simulation.tick simulation 80 in
+  let simulation =
+  Input.read "input"
+  |> Input.parse
+  |> Simulation.make
+  |> Simulation.tick ~n: 80 in
   print_endline (string_of_int (List.length simulation.fishes)) ;;
